@@ -2,8 +2,12 @@ package com.coen.stormy;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -27,35 +31,53 @@ public class MainActivity extends AppCompatActivity {
         String forcastURL = "https://api.weatherbit.io/v2.0/current?lat=" +
                 lattitude + "&lon=" + logitude + "&key=" + apiKey;
 
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(forcastURL).build();
+        if(isNetworkAvailable()) {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(forcastURL).build();
 
-        Call call = client.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                try {
-                    Log.v(TAG,response.body().string());
-                    if(response.isSuccessful()){
-
-                    }else{
-                        alertUserError();
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG,"IO Exception Caught");
+            Call call = client.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    e.printStackTrace();
                 }
-            }
-        });
 
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    try {
+                        Log.v(TAG, response.body().string());
+                        if (response.isSuccessful()) {
 
+                        } else {
+                            alertUserError();
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "IO Exception Caught");
+                    }
+                }
+            });
+        }
+        Log.v(TAG, "System UI running");
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        boolean isAvailable = false;
+        if(networkInfo != null && networkInfo.isConnected()){
+            isAvailable = true;
+        }else{
+            networkUserError();
+        }
+        return isAvailable;
     }
 
     private void alertUserError() {
-
+        AlertDialogFragment dialog = new AlertDialogFragment();
+        dialog.show(getSupportFragmentManager(),"error");
+    }
+    private void networkUserError(){
+        NetworkDialogFragment dialog = new NetworkDialogFragment();
+        dialog.show(getSupportFragmentManager(),"network_error");
     }
 }
