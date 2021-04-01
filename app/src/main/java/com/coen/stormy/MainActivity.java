@@ -1,13 +1,20 @@
 package com.coen.stormy;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.coen.stormy.databinding.ActivityMainBinding;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -22,15 +29,27 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity<imageView> extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
     private CurrentWeather currentWeather;
+    private ImageView icon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        getForcast();
+
+    }
+
+    private void getForcast() {
+        final ActivityMainBinding binding = DataBindingUtil.setContentView(MainActivity.this, R.layout.activity_main);
+
+        TextView weatherBit = findViewById(R.id.legalView);
+        icon = findViewById(R.id.iconImageView);
+        weatherBit.setMovementMethod(LinkMovementMethod.getInstance());
+
+
         String apiKey = "e7451049a11c40868a0d4669371f3d04";
-        Double lattitude = 35.7796;
+        Double lattitude = 40.7128;
         Double logitude = -78.6382;
         String forcastURL = "https://api.weatherbit.io/v2.0/current?lat=" +
                 lattitude + "&lon=" + logitude + "&key=" + apiKey + "&units=I";
@@ -53,6 +72,27 @@ public class MainActivity extends AppCompatActivity {
                         Log.v(TAG, JSONData);
                         if (response.isSuccessful()) {
                             currentWeather = getCurrentDetails(JSONData);
+
+                            CurrentWeather displayWeather = new CurrentWeather(
+                                    currentWeather.getLocationLabel(),
+                                    currentWeather.getIcon(),
+                                    currentWeather.getLocalTime(),
+                                    currentWeather.getTemperature(),
+                                    currentWeather.getHumidity(),
+                                    currentWeather.getPrecipChance(),
+                                    currentWeather.getSummary(),
+                                    currentWeather.getTimeZone()
+                            );
+
+                            binding.setWeather(displayWeather);
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    int resID = getResources().getIdentifier(displayWeather.getIcon() , "drawable", getPackageName());
+                                    icon.setImageResource(resID);
+                                }
+                            });
                         } else {
                             alertUserError();
                         }
@@ -106,5 +146,9 @@ public class MainActivity extends AppCompatActivity {
     private void networkUserError(){
         NetworkDialogFragment dialog = new NetworkDialogFragment();
         dialog.show(getSupportFragmentManager(),"network_error");
+    }
+    public void refreshOnclick(View view){
+        getForcast();
+        Toast.makeText(this, "Refreshing Data", Toast.LENGTH_SHORT).show();
     }
 }

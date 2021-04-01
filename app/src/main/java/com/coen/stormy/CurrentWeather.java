@@ -1,6 +1,7 @@
 package com.coen.stormy;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -18,6 +19,20 @@ public class CurrentWeather {
     private double precipChance;
     private String summary;
     private String timeZone;
+
+    public CurrentWeather() {
+    }
+
+    public CurrentWeather(String locationLabel, String icon, String localTime, double temperature, double humidity, double precipChance, String summary, String timeZone) {
+        this.locationLabel = locationLabel;
+        this.icon = icon;
+        this.localTime = localTime;
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.precipChance = precipChance;
+        this.summary = summary;
+        this.timeZone = timeZone;
+    }
 
     public String getTimeZone() {
         return timeZone;
@@ -86,4 +101,5 @@ public class CurrentWeather {
     public void setSummary(String summary) {
         this.summary = summary;
     }
+
 }
