@@ -4,11 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.content.Context;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,30 +35,80 @@ public class MainActivity<imageView> extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
     private CurrentWeather currentWeather;
     private ImageView icon;
+    private enum LocationType {ZIP_CODE, CITY, GPS};
+    private String city, state, country;
+    private String zipCode;
+    private String apiLocationString;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getForcast();
+        getUserLocation();
+        getForecast();
 
     }
 
-    private void getForcast() {
+    public void openLocationDialog(View view) {
+        //creates dialogfragment w/ userinput for city/state autofill
+        LocationDialogFragment locationDialogFragment = new LocationDialogFragment();
+        locationDialogFragment.show(getSupportFragmentManager(), "location");
+
+        getUserLocation();
+    }
+
+    private void getUserLocation() {
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        //ActivityResultLauncher<String[]> locationPermissionRequest =
+
+        //check permissions
+        //if avaliable
+               // locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
+        //run this else
+
+        //ask for location
+
+    }
+    //calls API depending on type of location information provided
+    private void createAPILocationString(LocationType locationType){
+        switch (locationType) {
+            case ZIP_CODE:
+                int zipCode = 77303;
+                apiLocationString = "&postal_code=" + zipCode;
+                break;
+            case CITY:
+                String city = "Houston";
+                String state = "TX";
+                String country = "US";
+                apiLocationString = "&city=" + city + "," + state;
+                if (!country.isEmpty()) {
+                    apiLocationString += "&country=" + country;
+                }
+                break;
+            case GPS:
+                Double latitude = 40.7128;
+                Double longitude = -78.6382;
+                apiLocationString = "lat=" + latitude + "&lon=" + longitude;
+                break;
+        }
+    }
+
+    // uses WeatherBit API to get current weather at location
+    private void getForecast() {
         final ActivityMainBinding binding = DataBindingUtil.setContentView(MainActivity.this, R.layout.activity_main);
 
         TextView weatherBit = findViewById(R.id.legalView);
         icon = findViewById(R.id.iconImageView);
         weatherBit.setMovementMethod(LinkMovementMethod.getInstance());
 
-
         String apiKey = "e7451049a11c40868a0d4669371f3d04";
-        Double lattitude = 40.7128;
-        Double logitude = -78.6382;
-        String forcastURL = "https://api.weatherbit.io/v2.0/current?lat=" +
-                lattitude + "&lon=" + logitude + "&key=" + apiKey + "&units=I";
+        createAPILocationString(LocationType.GPS);
+        String forecastURL = "https://api.weatherbit.io/v2.0/current?"+ apiLocationString + "&key=" + apiKey + "&units=I";
 
+        //calls API
         if(isNetworkAvailable()) {
             OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder().url(forcastURL).build();
+            Request request = new Request.Builder().url(forecastURL).build();
 
             Call call = client.newCall(request);
             call.enqueue(new Callback() {
@@ -72,6 +124,8 @@ public class MainActivity<imageView> extends AppCompatActivity {
                         Log.v(TAG, JSONData);
                         if (response.isSuccessful()) {
                             currentWeather = getCurrentDetails(JSONData);
+
+                        // getting data from api call
 
                             CurrentWeather displayWeather = new CurrentWeather(
                                     currentWeather.getLocationLabel(),
@@ -94,6 +148,7 @@ public class MainActivity<imageView> extends AppCompatActivity {
                                 }
                             });
                         } else {
+                            Log.d(TAG,"error");
                             alertUserError();
                         }
                     } catch (IOException e) {
@@ -109,8 +164,8 @@ public class MainActivity<imageView> extends AppCompatActivity {
 
     private CurrentWeather getCurrentDetails(String JSONData) throws JSONException {
         // Alternating objects and array are used to get to the object nested in the array
-        JSONObject forcast = new JSONObject(JSONData);
-        JSONArray data = forcast.getJSONArray("data");
+        JSONObject forecast = new JSONObject(JSONData);
+        JSONArray data = forecast.getJSONArray("data");
         JSONObject current = data.getJSONObject(0);
         JSONObject weather_icon = current.getJSONObject("weather");
 
@@ -138,7 +193,6 @@ public class MainActivity<imageView> extends AppCompatActivity {
         }
         return isAvailable;
     }
-
     private void alertUserError() {
         AlertDialogFragment dialog = new AlertDialogFragment();
         dialog.show(getSupportFragmentManager(),"error");
@@ -148,7 +202,7 @@ public class MainActivity<imageView> extends AppCompatActivity {
         dialog.show(getSupportFragmentManager(),"network_error");
     }
     public void refreshOnclick(View view){
-        getForcast();
+        getForecast();
         Toast.makeText(this, "Refreshing Data", Toast.LENGTH_SHORT).show();
     }
 }

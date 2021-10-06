@@ -156,14 +156,26 @@
             app:layout_constraintVertical_bias="0.872" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/updateimageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="refreshOnclick"
             app:layout_constraintBottom_toTopOf="@+id/locationView"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.512"
             app:srcCompat="@drawable/refresh" />
+
+        <ImageView
+            android:id="@+id/locationimageview"
+            android:layout_width="49dp"
+            android:layout_height="44dp"
+            android:onClick="openLocationDialog"
+            app:layout_constraintBottom_toBottomOf="@+id/updateimageview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/updateimageview"
+            app:layout_constraintTop_toTopOf="@+id/updateimageview"
+            app:srcCompat="@drawable/map_marker" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
