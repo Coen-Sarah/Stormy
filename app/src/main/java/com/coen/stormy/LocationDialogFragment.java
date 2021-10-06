@@ -1,10 +1,12 @@
 
 package com.coen.stormy;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,8 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.HashMap;
@@ -32,6 +36,14 @@ public class LocationDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
         Context context = getActivity();
+
+        ActivityResultCallback resultCallback = new ActivityResultCallback() {
+            @Override
+            public void onActivityResult(Object result) {
+
+            }
+        };
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.locationfragment,null);
 
@@ -41,14 +53,19 @@ public class LocationDialogFragment extends DialogFragment {
         gpsLocation.setOnClickListener(v -> {
             Log.d("location","gps button clicked");
             System.out.println("gps button clicked");
-            /*
-            check permissions
-            if none - ask for permissions
-                if rejected exit back to dialog
-            if yes - get gps data
-                setUserLocation
-                close
-             */
+
+            boolean courseLocationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            boolean fineLocationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+
+            if (fineLocationPermission && courseLocationPermission){
+                getLocationData();
+
+            }else{
+                Toast.makeText(context, "Please enable location data to use the GPS feature.",Toast.LENGTH_SHORT).show();
+
+            }
+
         });
 
         updateLocation.setOnClickListener(v -> {
