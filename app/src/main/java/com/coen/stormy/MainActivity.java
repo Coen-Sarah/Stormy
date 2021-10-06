@@ -47,12 +47,12 @@ public class MainActivity<imageView> extends AppCompatActivity implements Dialog
     private static HashMap<String, String> userLocation;
 
     //method overloaded to allow for dialog to display when app opened for the first time
-    //todo finetune oncreate method so that the locationdialog only displays on first open
+    //todo enable save of location data from previous open
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //if(savedInstanceState == null ) openLocationDialog();
+        if(savedInstanceState == null ) openLocationDialog();
         getForecast();
 
     }
