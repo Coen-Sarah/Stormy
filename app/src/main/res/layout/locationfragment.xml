@@ -26,20 +26,19 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/citytextview"
+            android:id="@+id/cityTextView"
             android:layout_width="385dp"
             android:layout_height="wrap_content"
-            android:text="City:"
+            android:text="@string/city"
             android:textAlignment="center"
             android:textColor="@color/black" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName"
+            android:id="@+id/cityEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="City"
             android:autofillHints="" />
 
         <TextView
@@ -51,29 +50,27 @@
             android:textColor="@color/black" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName2"
+            android:id="@+id/stateEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="State"
             android:autofillHints="" />
 
         <TextView
-            android:id="@+id/country"
+            android:id="@+id/countryTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Country (Optional)"
+            android:text="@string/country_optional"
             android:textAlignment="center"
             android:textColor="@color/black" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName3"
+            android:id="@+id/countryEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Country"
             android:autofillHints="" />
 
         <TextView
@@ -90,21 +87,20 @@
             android:id="@+id/ziptextview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Zip Code"
+            android:text="@string/zip_code"
             android:textAlignment="center"
             android:textColor="@color/black" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName4"
+            android:id="@+id/zipcodeEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Zip Code"
             android:autofillHints="" />
 
         <TextView
-            android:id="@+id/orgptextview"
+            android:id="@+id/orgpstextview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="OR"
@@ -114,12 +110,19 @@
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/enableLocationButton"
+            android:id="@+id/gpsLocationButton"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:onClick="getLocationData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Get My Location"
+            android:text="Use GPS Location"
+            app:backgroundTint="@color/teal_700" />
+
+        <Button
+            android:id="@+id/updateLocationButtton"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Update Location"
             app:backgroundTint="@color/teal_700" />
 
     </LinearLayout>

@@ -12,6 +12,7 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -31,18 +33,19 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity<imageView> extends AppCompatActivity {
+public class MainActivity<imageView> extends AppCompatActivity implements DialogCloseListener {
     public static final String TAG = MainActivity.class.getSimpleName();
     private CurrentWeather currentWeather;
     private ImageView icon;
-    private enum LocationType {ZIP_CODE, CITY, GPS};
+    private enum LocationType {ZIP_CODE, CITY, GPS}
     private String city, state, country;
     private String zipCode;
     private String apiLocationString;
+    private static HashMap<String, String> userLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getUserLocation();
         getForecast();
 
     }
@@ -50,27 +53,19 @@ public class MainActivity<imageView> extends AppCompatActivity {
     public void openLocationDialog(View view) {
         //creates dialogfragment w/ userinput for city/state autofill
         LocationDialogFragment locationDialogFragment = new LocationDialogFragment();
+        Log.d(TAG, "Here");
         locationDialogFragment.show(getSupportFragmentManager(), "location");
 
-        getUserLocation();
     }
 
-    private void getUserLocation() {
-
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        //ActivityResultLauncher<String[]> locationPermissionRequest =
-
-        //check permissions
-        //if avaliable
-               // locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
-        //run this else
-
-        //ask for location
+    @Override
+    public void handleDialogClose(LocationDialogFragment locationDialogFragment) {
+        Log.d(TAG,String.valueOf(this.userLocation.isEmpty()));
 
     }
+
     //calls API depending on type of location information provided
-    private void createAPILocationString(LocationType locationType){
+    private void createAPILocationString(LocationType locationType) {
         switch (locationType) {
             case ZIP_CODE:
                 int zipCode = 77303;
@@ -103,10 +98,10 @@ public class MainActivity<imageView> extends AppCompatActivity {
 
         String apiKey = "e7451049a11c40868a0d4669371f3d04";
         createAPILocationString(LocationType.GPS);
-        String forecastURL = "https://api.weatherbit.io/v2.0/current?"+ apiLocationString + "&key=" + apiKey + "&units=I";
+        String forecastURL = "https://api.weatherbit.io/v2.0/current?" + apiLocationString + "&key=" + apiKey + "&units=I";
 
         //calls API
-        if(isNetworkAvailable()) {
+        if (isNetworkAvailable()) {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(forecastURL).build();
 
@@ -125,7 +120,7 @@ public class MainActivity<imageView> extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             currentWeather = getCurrentDetails(JSONData);
 
-                        // getting data from api call
+                            // getting data from api call
 
                             CurrentWeather displayWeather = new CurrentWeather(
                                     currentWeather.getLocationLabel(),
@@ -143,17 +138,17 @@ public class MainActivity<imageView> extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    int resID = getResources().getIdentifier(displayWeather.getIcon() , "drawable", getPackageName());
+                                    int resID = getResources().getIdentifier(displayWeather.getIcon(), "drawable", getPackageName());
                                     icon.setImageResource(resID);
                                 }
                             });
                         } else {
-                            Log.d(TAG,"error");
+                            Log.d(TAG, "error");
                             alertUserError();
                         }
                     } catch (IOException e) {
                         Log.e(TAG, "IO Exception Caught");
-                    } catch (JSONException e){
+                    } catch (JSONException e) {
                         Log.e(TAG, "JSON Exception Caught");
                     }
                 }
@@ -178,7 +173,7 @@ public class MainActivity<imageView> extends AppCompatActivity {
         currentWeather.setPrecipChance(current.getDouble("precip"));
         currentWeather.setSummary(weather_icon.getString("description"));
         currentWeather.setIcon(weather_icon.getString("icon"));
-        Log.v(TAG,currentWeather.getLocalTime());
+        Log.v(TAG, currentWeather.getLocalTime());
         return currentWeather;
     }
 
@@ -186,23 +181,30 @@ public class MainActivity<imageView> extends AppCompatActivity {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
         boolean isAvailable = false;
-        if(networkInfo != null && networkInfo.isConnected()){
+        if (networkInfo != null && networkInfo.isConnected()) {
             isAvailable = true;
-        }else{
+        } else {
             networkUserError();
         }
         return isAvailable;
     }
+
     private void alertUserError() {
         AlertDialogFragment dialog = new AlertDialogFragment();
-        dialog.show(getSupportFragmentManager(),"error");
+        dialog.show(getSupportFragmentManager(), "error");
     }
-    private void networkUserError(){
+
+    private void networkUserError() {
         NetworkDialogFragment dialog = new NetworkDialogFragment();
-        dialog.show(getSupportFragmentManager(),"network_error");
+        dialog.show(getSupportFragmentManager(), "network_error");
     }
-    public void refreshOnclick(View view){
+
+    public void refreshOnclick(View view) {
         getForecast();
         Toast.makeText(this, "Refreshing Data", Toast.LENGTH_SHORT).show();
+    }
+
+    public static void setUserLocation(HashMap<String, String> newUserLocation) {
+        userLocation = (HashMap<String, String>) newUserLocation.clone();
     }
 }

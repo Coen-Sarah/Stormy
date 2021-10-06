@@ -9,4 +9,7 @@
     <string name="weatherbit_message"><a href="https://www.weatherbit.io/">Powered by WeatherBit</a></string>
     <string name="please_enter_your_city_and_state_zip_code_or_allow_access_to_location_services">Please enter your city and state, zip code, or allow access to location services.</string>
     <string name="state">State:</string>
+    <string name="city">City:</string>
+    <string name="country_optional">Country (Optional)</string>
+    <string name="zip_code">Zip Code</string>
 </resources>
