@@ -43,9 +43,13 @@ public class MainActivity<imageView> extends AppCompatActivity implements Dialog
     private String apiLocationString;
     private static HashMap<String, String> userLocation;
 
+    //method overloaded to allow for dialog to display when app opened for the first time
+    //todo finetune oncreate method so that the locationdialog only displays on first open
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //if(savedInstanceState == null ) openLocationDialog();
         getForecast();
 
     }
@@ -58,34 +62,68 @@ public class MainActivity<imageView> extends AppCompatActivity implements Dialog
 
     }
 
-    @Override
-    public void handleDialogClose(LocationDialogFragment locationDialogFragment) {
-        Log.d(TAG,String.valueOf(this.userLocation.isEmpty()));
+    public void openLocationDialog() {
+        //creates dialogfragment w/ userinput for city/state autofill
+        LocationDialogFragment locationDialogFragment = new LocationDialogFragment();
+        Log.d(TAG, "Here");
+        locationDialogFragment.show(getSupportFragmentManager(), "location");
 
     }
 
+    @Override
+    public void handleDialogClose(LocationDialogFragment locationDialogFragment) {
+        Log.d(TAG,String.valueOf(this.userLocation.isEmpty()));
+        getForecast();
+    }
+
     //calls API depending on type of location information provided
-    private void createAPILocationString(LocationType locationType) {
-        switch (locationType) {
-            case ZIP_CODE:
-                int zipCode = 77303;
-                apiLocationString = "&postal_code=" + zipCode;
-                break;
-            case CITY:
-                String city = "Houston";
-                String state = "TX";
-                String country = "US";
+    private void createAPILocationString() {
+        if(userLocation == null){
+            {
+                String cityDefault = "New York City";
+                String stateDefault = "New York";
+                apiLocationString = "&city=" + cityDefault + "," + stateDefault;
+
+            }
+        } else {
+            if (userLocation.containsKey("City")) {
+                String city = userLocation.get("City");
+                String state = userLocation.get("State");
+                String country = userLocation.get("Country");
                 apiLocationString = "&city=" + city + "," + state;
-                if (!country.isEmpty()) {
+                if (!(country == null)) {
                     apiLocationString += "&country=" + country;
                 }
-                break;
-            case GPS:
-                Double latitude = 40.7128;
-                Double longitude = -78.6382;
+            } else if (userLocation.containsKey("ZipCode")) {
+                int zipCode = Integer.parseInt(userLocation.get("ZipCode"));
+                apiLocationString = "&postal_code=" + zipCode;
+            } else if (userLocation.containsKey("GPS")) {
+                Double latitude = Double.parseDouble(userLocation.get("GPS").split(",")[0]);
+                Double longitude = Double.parseDouble(userLocation.get("GPS").split(",")[1]);
                 apiLocationString = "lat=" + latitude + "&lon=" + longitude;
-                break;
+            }
         }
+
+    //    switch (locationType) {
+    //        case ZIP_CODE:
+    //            int zipCode = 77303;
+    //            apiLocationString = "&postal_code=" + zipCode;
+    //            break;
+    //        case CITY:
+    //            String city = "Houston";
+    //            String state = "TX";
+    //            String country = "US";
+    //            apiLocationString = "&city=" + city + "," + state;
+    //            if (!country.isEmpty()) {
+    //                apiLocationString += "&country=" + country;
+    //            }
+    //            break;
+    //        case GPS:
+    //            Double latitude = 40.7128;
+    //            Double longitude = -78.6382;
+    //            apiLocationString = "lat=" + latitude + "&lon=" + longitude;
+    //            break;
+    //    }
     }
 
     // uses WeatherBit API to get current weather at location
@@ -97,7 +135,7 @@ public class MainActivity<imageView> extends AppCompatActivity implements Dialog
         weatherBit.setMovementMethod(LinkMovementMethod.getInstance());
 
         String apiKey = "e7451049a11c40868a0d4669371f3d04";
-        createAPILocationString(LocationType.GPS);
+        createAPILocationString();
         String forecastURL = "https://api.weatherbit.io/v2.0/current?" + apiLocationString + "&key=" + apiKey + "&units=I";
 
         //calls API
