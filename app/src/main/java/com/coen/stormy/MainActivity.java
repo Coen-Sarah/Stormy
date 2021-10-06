@@ -1,9 +1,12 @@
 package com.coen.stormy;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -78,7 +81,7 @@ public class MainActivity<imageView> extends AppCompatActivity implements Dialog
 
     //calls API depending on type of location information provided
     private void createAPILocationString() {
-        if(userLocation == null){
+        if (userLocation == null) {
             {
                 String cityDefault = "New York City";
                 String stateDefault = "New York";
@@ -102,28 +105,7 @@ public class MainActivity<imageView> extends AppCompatActivity implements Dialog
                 Double longitude = Double.parseDouble(userLocation.get("GPS").split(",")[1]);
                 apiLocationString = "lat=" + latitude + "&lon=" + longitude;
             }
-        }
-
-    //    switch (locationType) {
-    //        case ZIP_CODE:
-    //            int zipCode = 77303;
-    //            apiLocationString = "&postal_code=" + zipCode;
-    //            break;
-    //        case CITY:
-    //            String city = "Houston";
-    //            String state = "TX";
-    //            String country = "US";
-    //            apiLocationString = "&city=" + city + "," + state;
-    //            if (!country.isEmpty()) {
-    //                apiLocationString += "&country=" + country;
-    //            }
-    //            break;
-    //        case GPS:
-    //            Double latitude = 40.7128;
-    //            Double longitude = -78.6382;
-    //            apiLocationString = "lat=" + latitude + "&lon=" + longitude;
-    //            break;
-    //    }
+            }
     }
 
     // uses WeatherBit API to get current weather at location

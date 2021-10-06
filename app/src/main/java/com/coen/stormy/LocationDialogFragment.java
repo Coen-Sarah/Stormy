@@ -1,14 +1,19 @@
 
 package com.coen.stormy;
 
+import static com.google.android.gms.location.LocationRequest.PRIORITY_LOW_POWER;
+
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.renderscript.RenderScript;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +30,10 @@ import androidx.fragment.app.DialogFragment;
 import java.util.HashMap;
 
 import com.coen.stormy.MainActivity;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.OnTokenCanceledListener;
 
 public class LocationDialogFragment extends DialogFragment {
     HashMap userLocation = new HashMap<String,String>();
@@ -36,13 +45,8 @@ public class LocationDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
         Context context = getActivity();
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-        ActivityResultCallback resultCallback = new ActivityResultCallback() {
-            @Override
-            public void onActivityResult(Object result) {
-
-            }
-        };
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.locationfragment,null);
@@ -59,7 +63,11 @@ public class LocationDialogFragment extends DialogFragment {
 
 
             if (fineLocationPermission && courseLocationPermission){
-                getLocationData();
+                Location raw_location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                String coordinates = raw_location.toString().split(" ")[1];
+                userLocation.put("GPS", coordinates);
+                MainActivity.setUserLocation(userLocation);
+                dismiss();
 
             }else{
                 Toast.makeText(context, "Please enable location data to use the GPS feature.",Toast.LENGTH_SHORT).show();
@@ -79,7 +87,7 @@ public class LocationDialogFragment extends DialogFragment {
             String country = countryText.getText().toString();
             String zipCode = zipCodeText.getText().toString();
 
-            if( !city.isEmpty()){
+            if(!city.isEmpty()){
                 Log.d("location",city);
                 userLocation.put("City",city);
                 if(!state.isEmpty()){
@@ -112,10 +120,6 @@ public class LocationDialogFragment extends DialogFragment {
 
         return locationBuilder.create();
 
-    }
-
-    private void getLocationData(){
-        Log.d("LocationFragment","clicked gps button");
     }
 
     @Override
